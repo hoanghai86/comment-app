@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   getComments as getCommentsApi,
   createComment as createCommentApi,
+  deleteComment as deleteCommentApi,
+  updateComment as updateCommentApi
 } from "../Api";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
@@ -27,8 +29,17 @@ const Comments = ({ currentUserId }) => {
       setBackendComments([comment, ...backendComments]);
     });
   };
-  
-  console.log(backendComments)
+
+  const deleteComment = (commentId) => {
+    if (window.confirm("Are you sure that you want to remove comment?")) {
+      deleteCommentApi(commentId).then(() => {
+        const updateBackendComments = backendComments.filter(
+          (backendComment) => backendComment.id != commentId
+        );
+        setBackendComments(updateBackendComments)
+      });
+    }
+  };
 
   useEffect(() => {
     getCommentsApi().then((data) => {
@@ -48,6 +59,8 @@ const Comments = ({ currentUserId }) => {
               key={rootComment.id}
               comment={rootComment}
               replies={getReplies(rootComment.id)}
+              currentUserId={currentUserId}
+              deleteComment={deleteComment}
             />
           </div>
         ))}
